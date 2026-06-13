@@ -1,0 +1,28 @@
+seed: 42
+device: auto
+dtype: float32
+output_dir: outputs/multi-physics/1d
+
+mesh:
+  n_elem: 100
+
+model:
+  backbone: fno
+  latent_dim: 32
+  n_latent: 64
+  radial_hidden: 64
+  sigma_enc: 0.08
+  sigma_dec: 0.08
+  width: 32
+  modes: 16
+  layers: 5
+  fc_dim: 64
+  fno_padding: 0
+  bc_mode: envelope
+
+train:
+  n_iter: 500
+  lr: 0.0005
+  print_every: 100
+  full_n_iter_hint: 5000
+

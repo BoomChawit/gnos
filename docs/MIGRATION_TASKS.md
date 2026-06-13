@@ -15,8 +15,8 @@ Goal: migrate GPO+ from Colab/Drive into a public-demo GitHub repo with small, r
    - Leave physical-coordinate/resistance-coordinate ablations for a later optional PR.
 
 3. `codex/1d-multiphysics`
-   - Migrate 1D coupled hyperelasticity + heat-transfer cases.
-   - Add shared multiphysics validation and plotting only where needed.
+   - Migrate the main 1D thermo-nonlinear truss case coupled to the heat-transfer field.
+   - Leave multiphysics ablations for a later optional PR.
 
 4. `codex/1d-plasticity`
    - Migrate 1D plasticity/history-dependent cases.

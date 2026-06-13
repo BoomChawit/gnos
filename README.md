@@ -7,6 +7,7 @@ Phase 1 starts with 1D truss problems from the original Colab:
 - `problems/linear-elasticity/1d/truss.py`
 - `problems/nonlinear-elasticity/1d/truss.py`
 - `problems/heat-transfer/1d/conduction.py`
+- `problems/multi-physics/1d/truss.py`
 
 The model is the downloaded `model-1d-v2.0.1.py`, copied into `models/gnos.py`.
 
@@ -17,6 +18,7 @@ python -m pip install -e .
 bash scripts/run_1d_linear_elasticity.sh
 bash scripts/run_1d_nonlinear_elasticity.sh
 bash scripts/run_1d_heat_transfer.sh
+bash scripts/run_1d_multiphysics.sh
 ```
 
 For a tiny smoke run:
@@ -25,6 +27,7 @@ For a tiny smoke run:
 python problems/linear-elasticity/1d/truss.py --max-iter 2 --no-plots
 python problems/nonlinear-elasticity/1d/truss.py --max-iter 2 --laws convex --no-plots
 python problems/heat-transfer/1d/conduction.py --max-iter 2 --no-plots
+python problems/multi-physics/1d/truss.py --max-iter 2 --no-plots
 ```
 
 ## Layout
