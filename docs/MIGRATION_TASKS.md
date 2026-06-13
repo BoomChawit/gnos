@@ -26,16 +26,17 @@ Goal: migrate GPO+ from Colab/Drive into a public-demo GitHub repo with small, r
    - Migrate the main 2D rectangular panel linear-elasticity case.
    - Use the downloaded 2D GAM-FNO model and FE-consistent Q4 energy.
 
-6. `codex/3d-linear-elasticity`
-   - Start 3D migration after 2D foundations settle.
-
-Next 2D slices:
-- `codex/2d-nonlinear-elasticity`
+6. `codex/2d-nonlinear-elasticity`
   - Migrate the convex-hardening rectangular panel with FE-consistent Q4 energy.
-- `codex/2d-heat-transfer`
+
+7. `codex/2d-heat-transfer`
   - Migrate the FE-consistent 2D heat-transfer panel.
-- `codex/2d-multiphysics`
+
+8. `codex/2d-multiphysics`
   - Migrate the one-way thermo-nonlinear panel.
+
+9. `codex/3d-linear-elasticity`
+   - Start 3D migration after 2D foundations settle.
 
 ## PR Rules
 
