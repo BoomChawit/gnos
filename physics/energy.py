@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 import torch
 
-from physics.derivatives import element_gradient_1d, q4_element_strain
+from physics.derivatives import element_gradient_1d, q4_element_strain, q4_scalar_gradient
 
 Tensor = torch.Tensor
 
@@ -25,6 +25,18 @@ def _as_batch_vector(u: Tensor) -> Tensor:
     if u.ndim == 3:
         return u
     raise ValueError(f"Expected vector nodal field, got {tuple(u.shape)}")
+
+
+def _as_batch_scalar_nodes(u: Tensor) -> Tensor:
+    if u.ndim == 1:
+        return u.unsqueeze(0)
+    if u.ndim == 2 and u.shape[-1] == 1:
+        return u[:, 0].unsqueeze(0)
+    if u.ndim == 2:
+        return u
+    if u.ndim == 3 and u.shape[-1] == 1:
+        return u[..., 0]
+    raise ValueError(f"Expected scalar nodal field, got {tuple(u.shape)}")
 
 
 def linear_elastic_energy(u: Tensor, x_nodes: Tensor, f_ext: Tensor, *, area: float, young: float) -> Tensor:
@@ -144,6 +156,46 @@ def nonlinear_hardening_q4_energy_2d(
     q = torch.sum(strain * d_eps, dim=-1).clamp_min(0.0)
     kappa = torch.sqrt(q + eps_reg**2)
     density = 0.5 * q + alpha / (p + 2.0) * (kappa ** (p + 2.0) - eps_reg ** (p + 2.0))
+    energy = torch.sum(density * det.unsqueeze(0) * w.reshape(1, 1, -1), dim=(1, 2))
+    return torch.mean(energy * thickness)
+
+
+def heat_q4_energy_2d(
+    field: Tensor,
+    elements: Tensor,
+    shape_vals: Tensor,
+    grad_mats: Tensor,
+    det_j: Tensor,
+    weights: Tensor,
+    *,
+    k: float | Tensor,
+    source: float | Tensor = 0.0,
+    thickness: float = 1.0,
+) -> Tensor:
+    t_b = _as_batch_scalar_nodes(field)
+    elems = elements.to(device=t_b.device, dtype=torch.long)
+    n = shape_vals.to(device=t_b.device, dtype=t_b.dtype)
+    grad_m = grad_mats.to(device=t_b.device, dtype=t_b.dtype)
+    det = det_j.to(device=t_b.device, dtype=t_b.dtype)
+    w = weights.to(device=t_b.device, dtype=t_b.dtype)
+    k_t = torch.as_tensor(k, device=t_b.device, dtype=t_b.dtype)
+
+    t_e = t_b[:, elems]
+    grad = q4_scalar_gradient(t_b, elems, grad_m)
+    t_gp = torch.einsum("gj,bej->beg", n, t_e)
+
+    if torch.is_tensor(source):
+        src = source.to(device=t_b.device, dtype=t_b.dtype)
+        if src.ndim == 0:
+            source_gp = src
+        else:
+            source_b = _as_batch_scalar_nodes(src)
+            source_e = source_b[:, elems]
+            source_gp = torch.einsum("gj,bej->beg", n, source_e)
+    else:
+        source_gp = torch.as_tensor(float(source), device=t_b.device, dtype=t_b.dtype)
+
+    density = 0.5 * k_t * torch.sum(grad.square(), dim=-1) - source_gp * t_gp
     energy = torch.sum(density * det.unsqueeze(0) * w.reshape(1, 1, -1), dim=(1, 2))
     return torch.mean(energy * thickness)
 
