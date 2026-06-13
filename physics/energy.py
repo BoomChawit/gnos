@@ -200,6 +200,49 @@ def heat_q4_energy_2d(
     return torch.mean(energy * thickness)
 
 
+def thermo_nonlinear_q4_energy_2d(
+    u: Tensor,
+    temperature: Tensor,
+    elements: Tensor,
+    shape_vals: Tensor,
+    b_mats: Tensor,
+    det_j: Tensor,
+    weights: Tensor,
+    d_matrix: Tensor,
+    *,
+    alpha: float,
+    p: float,
+    alpha_t: float,
+    t0: float = 0.0,
+    thickness: float = 1.0,
+    eps_reg: float = 1e-12,
+) -> Tensor:
+    u_b = _as_batch_vector(u)
+    t_b = _as_batch_scalar_nodes(temperature)
+    elems = elements.to(device=u_b.device, dtype=torch.long)
+    n = shape_vals.to(device=u_b.device, dtype=u_b.dtype)
+    b = b_mats.to(device=u_b.device, dtype=u_b.dtype)
+    det = det_j.to(device=u_b.device, dtype=u_b.dtype)
+    w = weights.to(device=u_b.device, dtype=u_b.dtype)
+    d = d_matrix.to(device=u_b.device, dtype=u_b.dtype)
+
+    strain_total = q4_element_strain(u_b, elems, b)
+    temp_e = t_b[:, elems]
+    temp_gp = torch.einsum("gj,bej->beg", n, temp_e)
+    theta = float(alpha_t) * (temp_gp - float(t0))
+    eps_th = torch.zeros_like(strain_total)
+    eps_th[..., 0] = theta
+    eps_th[..., 1] = theta
+
+    eps_eff = strain_total - eps_th
+    d_eps = torch.einsum("ij,begj->begi", d, eps_eff)
+    q = torch.sum(eps_eff * d_eps, dim=-1).clamp_min(0.0)
+    kappa = torch.sqrt(q + eps_reg**2)
+    density = 0.5 * q + alpha / (p + 2.0) * (kappa ** (p + 2.0) - eps_reg ** (p + 2.0))
+    energy = torch.sum(density * det.unsqueeze(0) * w.reshape(1, 1, -1), dim=(1, 2))
+    return torch.mean(energy * thickness)
+
+
 def residual_norm_from_energy(
     energy_fn: Callable[[Tensor], Tensor],
     u: Tensor,

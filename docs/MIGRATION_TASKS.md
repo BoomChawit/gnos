@@ -33,7 +33,8 @@ Goal: migrate GPO+ from Colab/Drive into a public-demo GitHub repo with small, r
   - Migrate the FE-consistent 2D heat-transfer panel.
 
 8. `codex/2d-multiphysics`
-  - Migrate the one-way thermo-nonlinear panel.
+   - Migrate the one-way thermo-nonlinear panel.
+   - Use heat-transfer temperature as a recentered thermal-strain input.
 
 9. `codex/3d-linear-elasticity`
    - Start 3D migration after 2D foundations settle.

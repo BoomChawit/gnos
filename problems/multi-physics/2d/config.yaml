@@ -1,0 +1,53 @@
+seed: 42
+device: auto
+dtype: float32
+output_dir: outputs/multi-physics/2d
+
+mesh:
+  nx: 21
+  ny: 21
+  full_n_hint: 101
+
+heat:
+  case: case1
+  temp_scale: 1.0
+  recenter_temperature: true
+
+material:
+  E: 10.0
+  nu: 0.30
+  thickness: 1.0
+  top_v: 0.1
+  plane: stress
+  hard_alpha: 50.0
+  hard_p: 2.0
+  alpha_t: 1.0e-2
+  T0: 0.0
+
+reference:
+  n_steps: 8
+  newton_max_iter: 25
+  newton_tol: 1.0e-8
+  ramp_temperature: true
+  full_n_steps_hint: 20
+
+model:
+  backbone: fno
+  latent_dim: 4
+  n_latent: [16, 16]
+  radial_hidden: 8
+  sigma_enc: 0.085
+  sigma_dec: 0.085
+  width: 8
+  modes1: 4
+  modes2: 4
+  layers: 2
+  fc_dim: 16
+  fno_padding: [2, 2]
+  latent_support_threshold: 1.0e-12
+
+train:
+  n_iter: 500
+  lr: 0.01
+  print_every: 100
+  full_n_iter_hint: 10000

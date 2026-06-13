@@ -11,6 +11,7 @@ Phase 1 starts with 1D truss problems from the original Colab:
 - `problems/linear-elasticity/2d/panel.py`
 - `problems/nonlinear-elasticity/2d/panel.py`
 - `problems/heat-transfer/2d/panel.py`
+- `problems/multi-physics/2d/panel.py`
 
 The models are the downloaded `model-1d-v2.0.1.py` and `model-2d-v2.0.1.py`, copied into `models/`.
 
@@ -25,6 +26,7 @@ bash scripts/run_1d_multiphysics.sh
 bash scripts/run_2d_linear_elasticity.sh
 bash scripts/run_2d_nonlinear_elasticity.sh
 bash scripts/run_2d_heat_transfer.sh
+bash scripts/run_2d_multiphysics.sh
 ```
 
 For a tiny smoke run:
@@ -37,6 +39,7 @@ python problems/multi-physics/1d/truss.py --max-iter 2 --no-plots
 python problems/linear-elasticity/2d/panel.py --max-iter 2 --no-plots
 python problems/nonlinear-elasticity/2d/panel.py --max-iter 2 --no-plots
 python problems/heat-transfer/2d/panel.py --max-iter 2 --no-plots
+python problems/multi-physics/2d/panel.py --max-iter 2 --no-plots
 ```
 
 ## Layout
