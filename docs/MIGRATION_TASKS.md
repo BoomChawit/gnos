@@ -23,7 +23,8 @@ Goal: migrate GPO+ from Colab/Drive into a public-demo GitHub repo with small, r
    - Use the existing `StatefulIncrementalWrapper` or a small external stepping loop.
 
 5. `codex/2d-linear-elasticity`
-   - Start 2D migration after 1D cases are reviewable.
+   - Migrate the main 2D rectangular panel linear-elasticity case.
+   - Use the downloaded 2D GAM-FNO model and FE-consistent Q4 energy.
 
 6. `codex/3d-linear-elasticity`
    - Start 3D migration after 2D foundations settle.
