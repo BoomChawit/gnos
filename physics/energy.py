@@ -120,6 +120,34 @@ def linear_elastic_q4_energy_2d(
     return torch.mean(energy * thickness)
 
 
+def nonlinear_hardening_q4_energy_2d(
+    u: Tensor,
+    elements: Tensor,
+    b_mats: Tensor,
+    det_j: Tensor,
+    weights: Tensor,
+    d_matrix: Tensor,
+    *,
+    alpha: float,
+    p: float,
+    thickness: float = 1.0,
+    eps_reg: float = 1e-12,
+) -> Tensor:
+    u_b = _as_batch_vector(u)
+    elems = elements.to(device=u_b.device, dtype=torch.long)
+    b = b_mats.to(device=u_b.device, dtype=u_b.dtype)
+    det = det_j.to(device=u_b.device, dtype=u_b.dtype)
+    w = weights.to(device=u_b.device, dtype=u_b.dtype)
+    d = d_matrix.to(device=u_b.device, dtype=u_b.dtype)
+    strain = q4_element_strain(u_b, elems, b)
+    d_eps = torch.einsum("ij,begj->begi", d, strain)
+    q = torch.sum(strain * d_eps, dim=-1).clamp_min(0.0)
+    kappa = torch.sqrt(q + eps_reg**2)
+    density = 0.5 * q + alpha / (p + 2.0) * (kappa ** (p + 2.0) - eps_reg ** (p + 2.0))
+    energy = torch.sum(density * det.unsqueeze(0) * w.reshape(1, 1, -1), dim=(1, 2))
+    return torch.mean(energy * thickness)
+
+
 def residual_norm_from_energy(
     energy_fn: Callable[[Tensor], Tensor],
     u: Tensor,

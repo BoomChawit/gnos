@@ -1,0 +1,35 @@
+seed: 42
+device: auto
+dtype: float32
+output_dir: outputs/nonlinear-elasticity/2d
+
+mesh:
+  nx: 21
+  ny: 21
+  full_n_hint: 101
+
+reference:
+  n_steps: 8
+  newton_max_iter: 25
+  newton_tol: 1.0e-8
+
+model:
+  backbone: fno
+  latent_dim: 4
+  n_latent: [16, 16]
+  radial_hidden: 8
+  sigma_enc: 0.085
+  sigma_dec: 0.085
+  width: 8
+  modes1: 4
+  modes2: 4
+  layers: 2
+  fc_dim: 16
+  fno_padding: [2, 2]
+  latent_support_threshold: 1.0e-12
+
+train:
+  n_iter: 500
+  lr: 0.01
+  print_every: 100
+  full_n_iter_hint: 10000
