@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 import torch
 
-from physics.derivatives import element_gradient_1d
+from physics.derivatives import element_gradient_1d, q4_element_strain
 
 Tensor = torch.Tensor
 
@@ -17,6 +17,14 @@ def _as_batch(u: Tensor) -> Tensor:
     if u.ndim == 3 and u.shape[-1] == 1:
         return u[..., 0]
     raise ValueError(f"Expected scalar 1D field, got {tuple(u.shape)}")
+
+
+def _as_batch_vector(u: Tensor) -> Tensor:
+    if u.ndim == 2:
+        return u.unsqueeze(0)
+    if u.ndim == 3:
+        return u
+    raise ValueError(f"Expected vector nodal field, got {tuple(u.shape)}")
 
 
 def linear_elastic_energy(u: Tensor, x_nodes: Tensor, f_ext: Tensor, *, area: float, young: float) -> Tensor:
@@ -87,6 +95,29 @@ def diffusion_source_energy_1d(
     stored = 0.5 * torch.sum(a_mid.unsqueeze(0) * grad.square() * h.unsqueeze(0), dim=1)
     external = torch.sum(u_b * f.unsqueeze(0), dim=1)
     return torch.mean(stored - external)
+
+
+def linear_elastic_q4_energy_2d(
+    u: Tensor,
+    elements: Tensor,
+    b_mats: Tensor,
+    det_j: Tensor,
+    weights: Tensor,
+    d_matrix: Tensor,
+    *,
+    thickness: float = 1.0,
+) -> Tensor:
+    u_b = _as_batch_vector(u)
+    elems = elements.to(device=u_b.device, dtype=torch.long)
+    b = b_mats.to(device=u_b.device, dtype=u_b.dtype)
+    det = det_j.to(device=u_b.device, dtype=u_b.dtype)
+    w = weights.to(device=u_b.device, dtype=u_b.dtype)
+    d = d_matrix.to(device=u_b.device, dtype=u_b.dtype)
+    strain = q4_element_strain(u_b, elems, b)
+    stress = torch.einsum("ij,begj->begi", d, strain)
+    density = 0.5 * torch.sum(strain * stress, dim=-1)
+    energy = torch.sum(density * det.unsqueeze(0) * w.reshape(1, 1, -1), dim=(1, 2))
+    return torch.mean(energy * thickness)
 
 
 def residual_norm_from_energy(

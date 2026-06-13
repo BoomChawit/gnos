@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "GPO+ GNOS demo migration"
 requires-python = ">=3.10"
 dependencies = [
+  "cmocean",
   "matplotlib",
   "numpy",
   "PyYAML",
@@ -25,4 +26,3 @@ packages = [
   "src.validation",
   "src.validation.fem",
 ]
-
