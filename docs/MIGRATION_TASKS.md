@@ -10,8 +10,9 @@ Goal: migrate GPO+ from Colab/Drive into a public-demo GitHub repo with small, r
    - 1D nonlinear-elastic truss demo for convex and concave laws.
 
 2. `codex/1d-heat-transfer`
-   - Migrate 1D heat-transfer cases from the source notebook.
+   - Migrate the main 1D multilayer heat-transfer case from the source notebook.
    - Reuse `physics/energy.py`, `physics/boundary.py`, and 1D spatial gradients.
+   - Leave physical-coordinate/resistance-coordinate ablations for a later optional PR.
 
 3. `codex/1d-multiphysics`
    - Migrate 1D coupled hyperelasticity + heat-transfer cases.
@@ -34,4 +35,3 @@ Goal: migrate GPO+ from Colab/Drive into a public-demo GitHub repo with small, r
 - Keep full reproduction settings documented in YAML.
 - Do not commit heavy outputs, checkpoints, Drive links, or private artifacts.
 - Each PR should include smoke commands and the generated metrics path.
-

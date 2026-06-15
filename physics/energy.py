@@ -48,6 +48,26 @@ def nonlinear_elastic_energy(
     return torch.mean(strain_energy - external_work)
 
 
+def diffusion_source_energy_1d(
+    field: Tensor,
+    x_nodes: Tensor,
+    f_ext: Tensor,
+    *,
+    diffusion_area_fn: Callable[[Tensor], Tensor],
+) -> Tensor:
+    """Energy for -d/dx(a(x) du/dx) = q with Dirichlet boundaries."""
+    u_b = _as_batch(field)
+    x = x_nodes.reshape(-1).to(device=u_b.device, dtype=u_b.dtype)
+    f = f_ext.reshape(-1).to(device=u_b.device, dtype=u_b.dtype)
+    h = torch.diff(x)
+    x_mid = 0.5 * (x[:-1] + x[1:])
+    grad = element_gradient_1d(u_b, x)
+    a_mid = diffusion_area_fn(x_mid).to(device=u_b.device, dtype=u_b.dtype)
+    stored = 0.5 * torch.sum(a_mid.unsqueeze(0) * grad.square() * h.unsqueeze(0), dim=1)
+    external = torch.sum(u_b * f.unsqueeze(0), dim=1)
+    return torch.mean(stored - external)
+
+
 def residual_norm_from_energy(
     energy_fn: Callable[[Tensor], Tensor],
     u: Tensor,
@@ -62,4 +82,3 @@ def residual_norm_from_energy(
     if f_ext is not None:
         denom = torch.linalg.norm(f_ext.reshape(-1).to(u_var)[free_idx]).clamp_min(eps)
     return torch.linalg.norm(residual) / denom
-
