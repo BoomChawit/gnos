@@ -48,6 +48,27 @@ def nonlinear_elastic_energy(
     return torch.mean(strain_energy - external_work)
 
 
+def thermo_nonlinear_elastic_energy_1d(
+    u: Tensor,
+    x_nodes: Tensor,
+    f_ext: Tensor,
+    *,
+    area: float,
+    thermal_strain_elem: Tensor,
+    energy_density: Callable[[Tensor], Tensor],
+) -> Tensor:
+    u_b = _as_batch(u)
+    x = x_nodes.reshape(-1).to(device=u_b.device, dtype=u_b.dtype)
+    f = f_ext.reshape(-1).to(device=u_b.device, dtype=u_b.dtype)
+    h = torch.diff(x)
+    eps = element_gradient_1d(u_b, x)
+    eps_th = thermal_strain_elem.reshape(1, -1).to(device=u_b.device, dtype=u_b.dtype)
+    mech = eps - eps_th
+    strain_energy = area * torch.sum(energy_density(mech) * h.unsqueeze(0), dim=1)
+    external_work = torch.sum(u_b * f.unsqueeze(0), dim=1)
+    return torch.mean(strain_energy - external_work)
+
+
 def diffusion_source_energy_1d(
     field: Tensor,
     x_nodes: Tensor,
