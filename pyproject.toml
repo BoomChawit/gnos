@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnos"
+version = "0.1.0"
+description = "GPO+ GNOS demo migration"
+requires-python = ">=3.10"
+dependencies = [
+  "matplotlib",
+  "numpy",
+  "PyYAML",
+  "torch",
+]
+
+[tool.setuptools]
+packages = [
+  "models",
+  "physics",
+  "physics.derivatives",
+  "src",
+  "src.solver",
+  "src.utils",
+  "src.validation",
+  "src.validation.fem",
+]
+
